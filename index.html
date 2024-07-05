@@ -9,7 +9,12 @@
   <body>
     <div class="app">
       <canvas id="canvas"></canvas>
-      <input id="fileInput" type="file" accept="image/*"/>
+      <div class="tools">
+        <input id="fileInput" type="file" accept="image/*"/>
+        <button id="scaleDown" type="button">-</button>
+        <p id="scale"></p>
+        <button id="scaleUp" type="button">+</button>
+      </div>
     </div>
     <script type="module" src="/main.js"></script>
   </body>

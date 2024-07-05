@@ -38,3 +38,10 @@ body {
     width: 80%;
     align-self: center;
 }
+
+.tools {
+    display: grid;
+    grid-template-rows: 1;
+    grid-template-columns: 3;
+}
+
