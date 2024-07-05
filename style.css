@@ -1,0 +1,20 @@
+*,
+::before,
+::after {
+    box-sizing: border-box;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+    display: block;
+    max-width: 100%;
+    user-select: none;
+}
+
+* {
+  margin: 0; 
+  /* line-height: calc(1em + 0.5rem); */
+}
