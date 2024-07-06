@@ -50,8 +50,24 @@ body {
 .tools {
     display: grid;
     grid-template-rows: 1;
-    grid-template-columns: 3;
+    grid-template-columns: repeat(10, 5rem);
     padding-left: 2rem;
     padding-right: 2rem;
+}
+
+.displayScale {
+
+}
+
+.increaseScale {
+
+}
+
+.decreaseScale {
+
+}
+
+.uploadButton {
+    grid-column: span 3;
 }
 
