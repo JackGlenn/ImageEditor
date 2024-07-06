@@ -126,7 +126,7 @@ function App() {
                 >
                     -
                 </button>
-                <p className="displayScale">{scale.toFixed(1)}</p>
+                <p className="displayScale">{"Scale: " + scale.toFixed(1)}</p>
                 <button
                     onClick={() => {
                         setScale(scale + 0.1);
