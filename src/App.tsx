@@ -23,7 +23,7 @@ function App() {
         setHeight(style?.height);
         const canvasContext = canvasRef.current?.getContext("2d");
         canvasContext?.clearRect(0, 0, width ?? 100, height ?? 100);
-        canvasContext?.setTransform(1, 0, 0, 1, 0, 0);
+        canvasContext?.resetTransform();
         canvasContext?.scale(scale, scale);
         if (image !== undefined) {
             canvasContext?.drawImage(image, 0, 0);
