@@ -56,6 +56,23 @@ function App() {
         canvasContext?.lineTo(offsetX, offsetY)
     };
 
+    const canvasTouchStart =(event: React.TouchEvent) => {
+        event.preventDefault()
+        // TODO this code is too similar to canvas touch move
+        setDrawing(true)
+        const canvasContext = canvasRef.current?.getContext("2d");
+        const touches = event.changedTouches;
+        const {clientX, clientY} = touches[0];
+        const boundingRect = canvasRef?.current?.getBoundingClientRect()
+        if (boundingRect) {
+            const realX = clientX - boundingRect.left
+            const realY = clientY - boundingRect.top
+            canvasContext?.beginPath();
+            canvasContext?.moveTo(realX, realY);
+            canvasContext?.lineTo(realX, realY);
+        }
+    }
+
     const canvasMouseMove = (event: React.MouseEvent) => {
         if(drawing) {
             const canvasContext = canvasRef.current?.getContext("2d");
@@ -66,12 +83,36 @@ function App() {
         }
     };
 
+    const canvasTouchMove = (event: React.TouchEvent) => {
+        event.preventDefault();
+        if(drawing) {
+            const canvasContext = canvasRef.current?.getContext("2d");
+            const touches = event.changedTouches;
+            const {clientX, clientY} = touches[0];
+            const boundingRect = canvasRef?.current?.getBoundingClientRect()
+            if (boundingRect) {
+                const realX = clientX - boundingRect.left
+                const realY = clientY - boundingRect.top
+                canvasContext?.lineTo(realX, realY);
+                canvasContext?.moveTo(realX, realY);
+            }
+        }
+    }
+
     const canvasMouseUp = () => {
         setDrawing(false)
         const canvasContext = canvasRef.current?.getContext("2d");
         canvasContext?.stroke()
         // console.log("mouse up");
     };
+
+    const canvasTouchEnd = (event: React.TouchEvent) => {
+        event.preventDefault();
+        //TODO this is the same as for canvas
+        setDrawing(false)
+        const canvasContext = canvasRef.current?.getContext("2d");
+        canvasContext?.stroke()
+    }
 
     const handleColorPicker = (event: React.ChangeEvent<HTMLInputElement>) => {
         // console.log(event.target.value)
@@ -112,6 +153,9 @@ function App() {
                     onMouseDown={canvasMouseDown}
                     onMouseMove={canvasMouseMove}
                     onMouseUp={canvasMouseUp}
+                    onTouchStart={canvasTouchStart}
+                    onTouchMove={canvasTouchMove}
+                    onTouchEnd={canvasTouchEnd}
                 >
                     Canvas
                 </canvas>
