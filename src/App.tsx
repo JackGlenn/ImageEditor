@@ -8,7 +8,10 @@ function App() {
     const [height, setHeight] = useState<number>();
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [image, setImage] = useState<ImageBitmap>();
-    const [color, setColor] = useState()
+    // const [color, setColor] = useState()
+    const [drawing, setDrawing] = useState<boolean>(false)
+    // const [lineWidth, setLineWidth] = useState()
+
 
     const handleResize = useCallback(() => {
         const style = canvasRef.current?.getBoundingClientRect();
@@ -41,15 +44,61 @@ function App() {
         setImage(img);
     };
 
-    const canvasMouseDown = () => {};
+    const canvasMouseDown = (event: React.MouseEvent) => {
+        setDrawing(true)
+        const canvasContext = canvasRef.current?.getContext("2d");
+        const {offsetX, offsetY} = event.nativeEvent;
+        // console.log("mouse down: ", offsetX, offsetY)
+        // canvasContext?.beginPath(event.targetoffsetX)
 
-    const canvasMouseMove = () => {};
+        canvasContext?.beginPath()
+        canvasContext?.moveTo(offsetX, offsetY)
+        canvasContext?.lineTo(offsetX, offsetY)
+    };
 
-    const canvasMouseUp = () => {};
+    const canvasMouseMove = (event: React.MouseEvent) => {
+        if(drawing) {
+            const canvasContext = canvasRef.current?.getContext("2d");
+            const {offsetX, offsetY} = event.nativeEvent;
+            canvasContext?.lineTo(offsetX, offsetY)
+            canvasContext?.moveTo(offsetX, offsetY);
+            // console.log("mouse move: ", offsetX, offsetY)
+        }
+    };
 
-    const handleColorPicker = (event) => {
-        console.log(event.target.value)
-        console.log(typeof event.target.value)
+    const canvasMouseUp = () => {
+        setDrawing(false)
+        const canvasContext = canvasRef.current?.getContext("2d");
+        canvasContext?.stroke()
+        // console.log("mouse up");
+    };
+
+    const handleColorPicker = (event: React.ChangeEvent<HTMLInputElement>) => {
+        // console.log(event.target.value)
+        // console.log(typeof event.target.value)
+        const canvasContext = canvasRef.current?.getContext("2d");
+        if (canvasContext) {
+            canvasContext.strokeStyle = event.target.value;
+        }
+    }
+
+    const handleLineWidthChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        // setLineWidth
+        const canvasContext = canvasRef.current?.getContext("2d");
+        if (canvasContext) {
+            // ToDo maybe float?
+            canvasContext.lineWidth = parseInt(event.target.value);
+        }
+    }
+
+    const download = () => {
+        const link = document.createElement('a');
+        link.download = 'drawing.png';
+        const downloadUrl = canvasRef?.current?.toDataURL()
+        if (downloadUrl) {
+            link.href = downloadUrl
+        }
+        link.click();
     }
 
     return (
@@ -88,6 +137,9 @@ function App() {
                     +
                 </button>
                 <input type="color" onChange={handleColorPicker}/>
+                <p>Line Width: </p>
+                <input type="number" onChange={handleLineWidthChange} min={1}/>
+                <button onClick={download}>Download</button>
             </div>
         </div>
     );
