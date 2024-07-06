@@ -22,7 +22,8 @@ function App() {
         setWidth(style?.width);
         setHeight(style?.height);
         const canvasContext = canvasRef.current?.getContext("2d");
-        canvasContext?.clearRect(0, 0, width ?? 100, height ?? 100);
+        // canvasContext?.clearRect(0, 0, width ?? 100, height ?? 100);
+        canvasContext?.reset()
         canvasContext?.resetTransform();
         canvasContext?.scale(scale, scale);
         if (image !== undefined) {
@@ -33,7 +34,7 @@ function App() {
         return () => {
             window.removeEventListener("resize", handleResize);
         };
-    }, [width, height, scale, image, handleResize]);
+    }, [scale, image, handleResize]);
 
     const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const img = await createImageBitmap(event.target.files?.[0] as Blob);
