@@ -51,7 +51,7 @@ body {
 .tools {
     display: grid;
     grid-template-rows: 1;
-    grid-template-columns: repeat(10, 5rem);
+    grid-template-columns: repeat(10, 1fr);
     padding-left: 2rem;
     padding-right: 2rem;
 }
