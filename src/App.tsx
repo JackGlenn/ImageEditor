@@ -216,12 +216,15 @@ function App() {
                 </canvas>
             </div>
             <div className="tools">
-                <input onChange={handleFileUpload} type="file" accept="image/*" className="uploadButton" />
+                <label className="btn uploadButton">
+                    <input onChange={handleFileUpload} type="file" accept="image/*" className="fileUpload" />
+                    <p>Upload File</p>
+                </label>
                 <button
                     onClick={() => {
                         setScale(Math.max(scale - 0.1, 0.1));
                     }}
-                    className="decreaseScale"
+                    className="btn"
                 >
                     -
                 </button>
@@ -231,14 +234,14 @@ function App() {
                         setScale(scale + 0.1);
                     }}
                     type="button"
-                    className="increaseScale"
+                    className="btn"
                 >
                     +
                 </button>
                 <input type="color" onChange={handleColorPicker} />
                 <p>Line Width: </p>
                 <input type="number" onChange={handleLineWidthChange} min={1} />
-                <button onClick={download}>Download</button>
+                <button onClick={download} className="btn">Download</button>
             </div>
         </div>
     );
