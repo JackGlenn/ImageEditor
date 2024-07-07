@@ -38,6 +38,7 @@ function App() {
         canvasContext?.resetTransform();
         //TODO scale behaves oddly when smaller than 
         canvasContext?.scale(scale, scale);
+        // TODO image leaves behind fragments when decreasing scale.
         if (image !== undefined) {
             canvasContext?.drawImage(image, 0, 0);
         }
@@ -48,7 +49,6 @@ function App() {
                 canvasContext.strokeStyle = line.color;
                 canvasContext.lineWidth = line.lineWidth;
             } 
-                
             for (const point of line.points) {
                 canvasContext?.lineTo(point.x, point.y);
                 canvasContext?.moveTo(point.x, point.y);
@@ -112,6 +112,7 @@ function App() {
             canvasContext?.beginPath();
             canvasContext?.moveTo(realX, realY);
             canvasContext?.lineTo(realX, realY);
+            startLine(lineWidth, color, realX, realY);
         }
     };
 
@@ -122,7 +123,6 @@ function App() {
             canvasContext?.lineTo(offsetX, offsetY);
             canvasContext?.moveTo(offsetX, offsetY);
             canvasContext?.stroke();
-
             addLinePoint(offsetX, offsetY);
         }
     };
@@ -139,6 +139,7 @@ function App() {
                 canvasContext?.lineTo(realX, realY);
                 canvasContext?.moveTo(realX, realY);
                 canvasContext?.stroke();
+                addLinePoint(realX, realY)
             }
         }
     };
@@ -163,7 +164,7 @@ function App() {
             canvasContext?.lineTo(offsetX, offsetY);
             canvasContext?.moveTo(offsetX, offsetY);
             canvasContext?.stroke();
-
+            addLinePoint(offsetX, offsetY);
         }
         setDrawing(false);
     }
