@@ -25,8 +25,8 @@ function App() {
         setWidth(style?.width);
         setHeight(style?.height);
         const canvasContext = canvasRef.current?.getContext("2d");
-        // canvasContext?.clearRect(0, 0, width ?? 100, height ?? 100);
-        canvasContext?.reset()
+        canvasContext?.clearRect(0, 0, width ?? 100, height ?? 100);
+        // canvasContext?.reset()
         canvasContext?.resetTransform();
         canvasContext?.scale(scale, scale);
         if (image !== undefined) {
