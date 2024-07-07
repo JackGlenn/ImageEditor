@@ -102,7 +102,6 @@ function App() {
     };
 
     const canvasMouseUp = () => {
-        // TODO moving mouse off canvas and picking up doesnt end stroke.
         setDrawing(false);
         const canvasContext = canvasRef.current?.getContext("2d");
         canvasContext?.stroke();
@@ -116,6 +115,19 @@ function App() {
         const canvasContext = canvasRef.current?.getContext("2d");
         canvasContext?.stroke();
     };
+
+    const canvasMouseLeave = (event: React.MouseEvent)=> {
+        if (drawing) {
+            const canvasContext = canvasRef.current?.getContext("2d");
+            const { offsetX, offsetY } = event.nativeEvent;
+            canvasContext?.lineTo(offsetX, offsetY);
+            canvasContext?.moveTo(offsetX, offsetY);
+            canvasContext?.stroke();
+
+            // console.log("mouse move: ", offsetX, offsetY)
+        }
+        setDrawing(false);
+    }
 
     const handleColorPicker = (event: React.ChangeEvent<HTMLInputElement>) => {
         // console.log(event.target.value)
@@ -156,6 +168,7 @@ function App() {
                     onMouseDown={canvasMouseDown}
                     onMouseMove={canvasMouseMove}
                     onMouseUp={canvasMouseUp}
+                    onMouseLeave={canvasMouseLeave}
                     onTouchStart={canvasTouchStart}
                     onTouchMove={canvasTouchMove}
                     onTouchEnd={canvasTouchEnd}
