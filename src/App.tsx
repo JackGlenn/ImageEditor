@@ -44,7 +44,11 @@ function App() {
         // TODO line is rendered twice on initial stroke due to being handles both in 
         for (const line of lines) {
             canvasContext?.beginPath();
-            if (canvasContext) canvasContext.strokeStyle = line.color;
+            if (canvasContext) {
+                canvasContext.strokeStyle = line.color;
+                canvasContext.lineWidth = line.lineWidth;
+            } 
+                
             for (const point of line.points) {
                 canvasContext?.lineTo(point.x, point.y);
                 canvasContext?.moveTo(point.x, point.y);
