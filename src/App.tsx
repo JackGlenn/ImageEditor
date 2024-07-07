@@ -1,6 +1,15 @@
 import { useState, useLayoutEffect, useRef, useCallback } from "react";
 // import "./App.css";
 
+type Line = {
+    lineWidth: number;
+    color: string;
+    points: {
+        x: number;
+        y: number;
+    }[];
+}
+
 function App() {
     // const [count, setCount] = useState(0)
     const [scale, setScale] = useState<number>(1);
@@ -8,15 +17,15 @@ function App() {
     const [height, setHeight] = useState<number>();
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [image, setImage] = useState<ImageBitmap>();
-    // const [color, setColor] = useState()
+    const [color, setColor] = useState<string>("#000000");
     const [drawing, setDrawing] = useState<boolean>(false);
-    // const [lineWidth, setLineWidth] = useState()
+    const [lineWidth, setLineWidth] = useState<number>(1)
+    const [lines, setLines] = useState<Line[]>([])
 
     const handleResize = useCallback(() => {
         const style = canvasRef.current?.getBoundingClientRect();
         setWidth(style?.width);
         setHeight(style?.height);
-        // console.log(width, height)
     }, []);
 
     useLayoutEffect(() => {
@@ -27,16 +36,47 @@ function App() {
         canvasContext?.clearRect(0, 0, canvasRef.current?.width ?? 100, canvasRef.current?.height ?? 100);
         // canvasContext?.reset()
         canvasContext?.resetTransform();
+        //TODO scale behaves oddly when smaller than 
         canvasContext?.scale(scale, scale);
         if (image !== undefined) {
             canvasContext?.drawImage(image, 0, 0);
+        }
+        // TODO line is rendered twice on initial stroke due to being handles both in 
+        for (const line of lines) {
+            canvasContext?.beginPath();
+            if (canvasContext) canvasContext.strokeStyle = line.color;
+            for (const point of line.points) {
+                canvasContext?.lineTo(point.x, point.y);
+                canvasContext?.moveTo(point.x, point.y);
+            }
+            canvasContext?.stroke();
         }
 
         window.addEventListener("resize", handleResize);
         return () => {
             window.removeEventListener("resize", handleResize);
         };
-    }, [scale, image, handleResize]);
+    }, [scale, image, handleResize, lines, width, height]);
+
+    const startLine = (setLineWidth: number, clr: string, x: number, y: number) => {
+        setLines((prevState: Line[])=> {
+            const newLine: Line = {
+                lineWidth: setLineWidth,
+                color: clr,
+                points: [{x, y}]
+            };
+            const lines = [...prevState, newLine];
+            return lines;
+        })
+    }
+
+    const addLinePoint = (x:number, y:number) => {
+        setLines((prevState: Line[])=> {
+            const newLines: Line[] = [...prevState];
+            newLines[newLines.length - 1].points = [...newLines[newLines.length - 1].points, {x, y}];
+            return newLines;
+        })
+    }
 
     const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const img = await createImageBitmap(event.target.files?.[0] as Blob);
@@ -47,12 +87,12 @@ function App() {
         setDrawing(true);
         const canvasContext = canvasRef.current?.getContext("2d");
         const { offsetX, offsetY } = event.nativeEvent;
-        // console.log("mouse down: ", offsetX, offsetY)
         // canvasContext?.beginPath(event.targetoffsetX)
 
         canvasContext?.beginPath();
         canvasContext?.moveTo(offsetX, offsetY);
         canvasContext?.lineTo(offsetX, offsetY);
+        startLine(lineWidth, color, offsetX, offsetY);
     };
 
     const canvasTouchStart = (event: React.TouchEvent) => {
@@ -79,7 +119,7 @@ function App() {
             canvasContext?.moveTo(offsetX, offsetY);
             canvasContext?.stroke();
 
-            // console.log("mouse move: ", offsetX, offsetY)
+            addLinePoint(offsetX, offsetY);
         }
     };
 
@@ -103,7 +143,6 @@ function App() {
         setDrawing(false);
         const canvasContext = canvasRef.current?.getContext("2d");
         canvasContext?.stroke();
-        // console.log("mouse up");
     };
 
     const canvasTouchEnd = () => {
@@ -121,22 +160,20 @@ function App() {
             canvasContext?.moveTo(offsetX, offsetY);
             canvasContext?.stroke();
 
-            // console.log("mouse move: ", offsetX, offsetY)
         }
         setDrawing(false);
     }
 
     const handleColorPicker = (event: React.ChangeEvent<HTMLInputElement>) => {
-        // console.log(event.target.value)
-        // console.log(typeof event.target.value)
         const canvasContext = canvasRef.current?.getContext("2d");
         if (canvasContext) {
             canvasContext.strokeStyle = event.target.value;
         }
+        setColor(event.target.value);
     };
 
     const handleLineWidthChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        // setLineWidth
+        setLineWidth(parseInt(event.target.value));
         const canvasContext = canvasRef.current?.getContext("2d");
         if (canvasContext) {
             // ToDo maybe float?
