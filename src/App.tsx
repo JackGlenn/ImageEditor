@@ -56,7 +56,6 @@ function App() {
     };
 
     const canvasTouchStart = (event: React.TouchEvent) => {
-        event.preventDefault();
         // TODO this code is too similar to canvas touch move
         setDrawing(true);
         const canvasContext = canvasRef.current?.getContext("2d");
@@ -85,7 +84,6 @@ function App() {
     };
 
     const canvasTouchMove = (event: React.TouchEvent) => {
-        event.preventDefault();
         if (drawing) {
             const canvasContext = canvasRef.current?.getContext("2d");
             const touches = event.changedTouches;
@@ -108,8 +106,7 @@ function App() {
         // console.log("mouse up");
     };
 
-    const canvasTouchEnd = (event: React.TouchEvent) => {
-        event.preventDefault();
+    const canvasTouchEnd = () => {
         //TODO this is the same as for canvas
         setDrawing(false);
         const canvasContext = canvasRef.current?.getContext("2d");
