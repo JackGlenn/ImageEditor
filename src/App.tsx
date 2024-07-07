@@ -79,6 +79,8 @@ function App() {
             const {offsetX, offsetY} = event.nativeEvent;
             canvasContext?.lineTo(offsetX, offsetY)
             canvasContext?.moveTo(offsetX, offsetY);
+            canvasContext?.stroke()
+
             // console.log("mouse move: ", offsetX, offsetY)
         }
     };
@@ -95,11 +97,14 @@ function App() {
                 const realY = clientY - boundingRect.top
                 canvasContext?.lineTo(realX, realY);
                 canvasContext?.moveTo(realX, realY);
+                canvasContext?.stroke()
+
             }
         }
     }
 
     const canvasMouseUp = () => {
+        // TODO moving mouse off canvas and picking up doesnt end stroke.
         setDrawing(false)
         const canvasContext = canvasRef.current?.getContext("2d");
         canvasContext?.stroke()
