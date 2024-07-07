@@ -9,9 +9,8 @@ function App() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [image, setImage] = useState<ImageBitmap>();
     // const [color, setColor] = useState()
-    const [drawing, setDrawing] = useState<boolean>(false)
+    const [drawing, setDrawing] = useState<boolean>(false);
     // const [lineWidth, setLineWidth] = useState()
-
 
     const handleResize = useCallback(() => {
         const style = canvasRef.current?.getBoundingClientRect();
@@ -45,41 +44,41 @@ function App() {
     };
 
     const canvasMouseDown = (event: React.MouseEvent) => {
-        setDrawing(true)
+        setDrawing(true);
         const canvasContext = canvasRef.current?.getContext("2d");
-        const {offsetX, offsetY} = event.nativeEvent;
+        const { offsetX, offsetY } = event.nativeEvent;
         // console.log("mouse down: ", offsetX, offsetY)
         // canvasContext?.beginPath(event.targetoffsetX)
 
-        canvasContext?.beginPath()
-        canvasContext?.moveTo(offsetX, offsetY)
-        canvasContext?.lineTo(offsetX, offsetY)
+        canvasContext?.beginPath();
+        canvasContext?.moveTo(offsetX, offsetY);
+        canvasContext?.lineTo(offsetX, offsetY);
     };
 
-    const canvasTouchStart =(event: React.TouchEvent) => {
-        event.preventDefault()
+    const canvasTouchStart = (event: React.TouchEvent) => {
+        event.preventDefault();
         // TODO this code is too similar to canvas touch move
-        setDrawing(true)
+        setDrawing(true);
         const canvasContext = canvasRef.current?.getContext("2d");
         const touches = event.changedTouches;
-        const {clientX, clientY} = touches[0];
-        const boundingRect = canvasRef?.current?.getBoundingClientRect()
+        const { clientX, clientY } = touches[0];
+        const boundingRect = canvasRef?.current?.getBoundingClientRect();
         if (boundingRect) {
-            const realX = clientX - boundingRect.left
-            const realY = clientY - boundingRect.top
+            const realX = clientX - boundingRect.left;
+            const realY = clientY - boundingRect.top;
             canvasContext?.beginPath();
             canvasContext?.moveTo(realX, realY);
             canvasContext?.lineTo(realX, realY);
         }
-    }
+    };
 
     const canvasMouseMove = (event: React.MouseEvent) => {
-        if(drawing) {
+        if (drawing) {
             const canvasContext = canvasRef.current?.getContext("2d");
-            const {offsetX, offsetY} = event.nativeEvent;
-            canvasContext?.lineTo(offsetX, offsetY)
+            const { offsetX, offsetY } = event.nativeEvent;
+            canvasContext?.lineTo(offsetX, offsetY);
             canvasContext?.moveTo(offsetX, offsetY);
-            canvasContext?.stroke()
+            canvasContext?.stroke();
 
             // console.log("mouse move: ", offsetX, offsetY)
         }
@@ -87,37 +86,36 @@ function App() {
 
     const canvasTouchMove = (event: React.TouchEvent) => {
         event.preventDefault();
-        if(drawing) {
+        if (drawing) {
             const canvasContext = canvasRef.current?.getContext("2d");
             const touches = event.changedTouches;
-            const {clientX, clientY} = touches[0];
-            const boundingRect = canvasRef?.current?.getBoundingClientRect()
+            const { clientX, clientY } = touches[0];
+            const boundingRect = canvasRef?.current?.getBoundingClientRect();
             if (boundingRect) {
-                const realX = clientX - boundingRect.left
-                const realY = clientY - boundingRect.top
+                const realX = clientX - boundingRect.left;
+                const realY = clientY - boundingRect.top;
                 canvasContext?.lineTo(realX, realY);
                 canvasContext?.moveTo(realX, realY);
-                canvasContext?.stroke()
-
+                canvasContext?.stroke();
             }
         }
-    }
+    };
 
     const canvasMouseUp = () => {
         // TODO moving mouse off canvas and picking up doesnt end stroke.
-        setDrawing(false)
+        setDrawing(false);
         const canvasContext = canvasRef.current?.getContext("2d");
-        canvasContext?.stroke()
+        canvasContext?.stroke();
         // console.log("mouse up");
     };
 
     const canvasTouchEnd = (event: React.TouchEvent) => {
         event.preventDefault();
         //TODO this is the same as for canvas
-        setDrawing(false)
+        setDrawing(false);
         const canvasContext = canvasRef.current?.getContext("2d");
-        canvasContext?.stroke()
-    }
+        canvasContext?.stroke();
+    };
 
     const handleColorPicker = (event: React.ChangeEvent<HTMLInputElement>) => {
         // console.log(event.target.value)
@@ -126,7 +124,7 @@ function App() {
         if (canvasContext) {
             canvasContext.strokeStyle = event.target.value;
         }
-    }
+    };
 
     const handleLineWidthChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         // setLineWidth
@@ -135,17 +133,17 @@ function App() {
             // ToDo maybe float?
             canvasContext.lineWidth = parseInt(event.target.value);
         }
-    }
+    };
 
     const download = () => {
-        const link = document.createElement('a');
-        link.download = 'drawing.png';
-        const downloadUrl = canvasRef?.current?.toDataURL()
+        const link = document.createElement("a");
+        link.download = "drawing.png";
+        const downloadUrl = canvasRef?.current?.toDataURL();
         if (downloadUrl) {
-            link.href = downloadUrl
+            link.href = downloadUrl;
         }
         link.click();
-    }
+    };
 
     return (
         <div className="app">
@@ -185,9 +183,9 @@ function App() {
                 >
                     +
                 </button>
-                <input type="color" onChange={handleColorPicker}/>
+                <input type="color" onChange={handleColorPicker} />
                 <p>Line Width: </p>
-                <input type="number" onChange={handleLineWidthChange} min={1}/>
+                <input type="number" onChange={handleLineWidthChange} min={1} />
                 <button onClick={download}>Download</button>
             </div>
         </div>
