@@ -21,6 +21,52 @@ function App() {
     const [drawing, setDrawing] = useState<boolean>(false);
     const [lineWidth, setLineWidth] = useState<number>(1)
     const [lines, setLines] = useState<Line[]>([])
+    const baseBrush = useRef<ImageData | null>(null);
+
+    // console.log("render")
+
+    const getImageDataIndex = (x: number, y: number, width: number) => {
+        return y * (width * 4) + x * 4;
+    };
+
+    if (baseBrush.current === null) {
+        const pattern = [
+            [0, 0, 1, 0, 0],
+            [0, 1, 1, 1, 0],
+            [1, 1, 1, 1, 1],
+            [0, 1, 1, 1, 0],
+            [0, 0, 1, 0, 0],
+        ]
+        baseBrush.current = new ImageData(5, 5);
+        const canvasContext = canvasRef.current?.getContext("2d");
+        const newData = canvasContext?.createImageData(5, 5)
+        if (newData !== undefined) {
+            console.log("heref")
+            baseBrush.current = newData;
+        }
+        for (let y = 0; y < pattern.length; y++) {
+            for (let x = 0; x < pattern[0].length; x++) {
+                if (pattern[y][x] === 1) {
+                    const baseIndex = getImageDataIndex(x, y, 5);
+                    baseBrush.current.data[baseIndex] = 255;
+                    baseBrush.current.data[baseIndex + 1] = 0;
+                    baseBrush.current.data[baseIndex + 2] = 0;
+                    baseBrush.current.data[baseIndex + 3] = 255;
+                }
+            }
+        }
+    }
+
+    // Returns the first index for pixel at x, y
+    // With the following three indices you have RGBA
+   
+    // const [redIndex, greenIndex, blueIndex, alphaIndex] = colorIndices;
+    const getColorIndicesForCoord = (x, y) => {
+        if (!width) return;
+        const red = y * (width * 4) + x * 4;
+        return [red, red + 1, red + 2, red + 3];
+    };
+
 
     const handleResize = useCallback(() => {
         const style = canvasRef.current?.getBoundingClientRect();
@@ -43,24 +89,30 @@ function App() {
             canvasContext?.drawImage(image, 0, 0);
         }
         // TODO line is rendered twice on initial stroke due to being handles both in 
-        for (const line of lines) {
-            canvasContext?.beginPath();
-            if (canvasContext) {
-                canvasContext.strokeStyle = line.color;
-                canvasContext.lineWidth = line.lineWidth;
-            } 
-            for (const point of line.points) {
-                canvasContext?.lineTo(point.x, point.y);
-                canvasContext?.moveTo(point.x, point.y);
-            }
-            canvasContext?.stroke();
+        // for (const line of lines) {
+        //     canvasContext?.beginPath();
+        //     if (canvasContext) {
+        //         canvasContext.strokeStyle = line.color;
+        //         canvasContext.lineWidth = line.lineWidth;
+        //     } 
+        //     for (const point of line.points) {
+        //         canvasContext?.lineTo(point.x, point.y);
+        //         canvasContext?.moveTo(point.x, point.y);
+        //     }
+        //     canvasContext?.stroke();
+        // }
+        // canvasContext?.createImageData()
+        console.log("layout called")
+        if (baseBrush.current !== null) {
+            console.log(baseBrush.current);
+            canvasContext?.putImageData(baseBrush.current, 0, 0);
         }
-
         window.addEventListener("resize", handleResize);
         return () => {
             window.removeEventListener("resize", handleResize);
-        };
-    }, [scale, image, handleResize, lines, width, height]);
+        }
+    }, [scale, image, handleResize, width, height]);
+
 
     const startLine = (setLineWidth: number, clr: string, x: number, y: number) => {
         setLines((prevState: Line[])=> {
@@ -93,10 +145,16 @@ function App() {
         const { offsetX, offsetY } = event.nativeEvent;
         // canvasContext?.beginPath(event.targetoffsetX)
 
-        canvasContext?.beginPath();
-        canvasContext?.moveTo(offsetX, offsetY);
-        canvasContext?.lineTo(offsetX, offsetY);
-        startLine(lineWidth, color, offsetX, offsetY);
+        // canvasContext?.beginPath();
+        // canvasContext?.moveTo(offsetX, offsetY);
+        // canvasContext?.lineTo(offsetX, offsetY);
+        // startLine(lineWidth, color, offsetX, offsetY);
+            canvasContext?.putImageData(baseBrush.current, offsetX, offsetY);
+
+        if (baseBrush.current !== null) {
+            // console.log("placed at : ", offsetX, offsetY)
+            canvasContext?.putImageData(baseBrush.current, offsetX, offsetY);
+        }
     };
 
     const canvasTouchStart = (event: React.TouchEvent) => {
@@ -109,10 +167,10 @@ function App() {
         if (boundingRect) {
             const realX = clientX - boundingRect.left;
             const realY = clientY - boundingRect.top;
-            canvasContext?.beginPath();
-            canvasContext?.moveTo(realX, realY);
-            canvasContext?.lineTo(realX, realY);
-            startLine(lineWidth, color, realX, realY);
+            // canvasContext?.beginPath();
+            // canvasContext?.moveTo(realX, realY);
+            // canvasContext?.lineTo(realX, realY);
+            // startLine(lineWidth, color, realX, realY);
         }
     };
 
@@ -120,10 +178,14 @@ function App() {
         if (drawing) {
             const canvasContext = canvasRef.current?.getContext("2d");
             const { offsetX, offsetY } = event.nativeEvent;
-            canvasContext?.lineTo(offsetX, offsetY);
-            canvasContext?.moveTo(offsetX, offsetY);
-            canvasContext?.stroke();
-            addLinePoint(offsetX, offsetY);
+            // canvasContext?.lineTo(offsetX, offsetY);
+            // canvasContext?.moveTo(offsetX, offsetY);
+            // canvasContext?.stroke();
+            // addLinePoint(offsetX, offsetY);
+            if (baseBrush.current !== null) {
+                // console.log("placed at : ", offsetX, offsetY)
+                canvasContext?.putImageData(baseBrush.current, offsetX, offsetY);
+            }
         }
     };
 
@@ -136,9 +198,9 @@ function App() {
             if (boundingRect) {
                 const realX = clientX - boundingRect.left;
                 const realY = clientY - boundingRect.top;
-                canvasContext?.lineTo(realX, realY);
-                canvasContext?.moveTo(realX, realY);
-                canvasContext?.stroke();
+                // canvasContext?.lineTo(realX, realY);
+                // canvasContext?.moveTo(realX, realY);
+                // canvasContext?.stroke();
                 addLinePoint(realX, realY)
             }
         }
@@ -146,8 +208,8 @@ function App() {
 
     const canvasMouseUp = () => {
         setDrawing(false);
-        const canvasContext = canvasRef.current?.getContext("2d");
-        canvasContext?.stroke();
+        // const canvasContext = canvasRef.current?.getContext("2d");
+        // canvasContext?.stroke();
     };
 
     const canvasTouchEnd = () => {
@@ -161,10 +223,10 @@ function App() {
         if (drawing) {
             const canvasContext = canvasRef.current?.getContext("2d");
             const { offsetX, offsetY } = event.nativeEvent;
-            canvasContext?.lineTo(offsetX, offsetY);
-            canvasContext?.moveTo(offsetX, offsetY);
-            canvasContext?.stroke();
-            addLinePoint(offsetX, offsetY);
+            // canvasContext?.lineTo(offsetX, offsetY);
+            // canvasContext?.moveTo(offsetX, offsetY);
+            // canvasContext?.stroke();
+            // addLinePoint(offsetX, offsetY);
         }
         setDrawing(false);
     }
