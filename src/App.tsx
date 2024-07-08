@@ -143,17 +143,23 @@ function App() {
         setDrawing(true);
         const canvasContext = canvasRef.current?.getContext("2d");
         const { offsetX, offsetY } = event.nativeEvent;
-        // canvasContext?.beginPath(event.targetoffsetX)
-
-        // canvasContext?.beginPath();
-        // canvasContext?.moveTo(offsetX, offsetY);
-        // canvasContext?.lineTo(offsetX, offsetY);
-        // startLine(lineWidth, color, offsetX, offsetY);
-            canvasContext?.putImageData(baseBrush.current, offsetX, offsetY);
-
+        // TODO make this a function
         if (baseBrush.current !== null) {
-            // console.log("placed at : ", offsetX, offsetY)
-            canvasContext?.putImageData(baseBrush.current, offsetX, offsetY);
+            // 5, 5 for brush size
+            const previousData = canvasContext?.getImageData(offsetX, offsetY, 5, 5)
+            if (previousData !== undefined) {
+                for (let i = 0; i < previousData.data.length; i = i + 4) {
+                    if (baseBrush.current.data[i + 3] !== 0) {
+                        // OverWrite previous data with brush data brush isnt opaque on that spot
+                        previousData.data[i] = baseBrush.current.data[i]
+                        previousData.data[i + 1] = baseBrush.current.data[i + 1]
+                        previousData.data[i + 2] = baseBrush.current.data[i + 2]
+                        previousData.data[i + 3] = baseBrush.current.data[i + 3]
+                    }
+                }
+                // TODO make placement of brush stroke centered on pointer not with top left corners
+                canvasContext?.putImageData(previousData, offsetX, offsetY);
+            }
         }
     };
 
@@ -178,38 +184,32 @@ function App() {
         if (drawing) {
             const canvasContext = canvasRef.current?.getContext("2d");
             const { offsetX, offsetY } = event.nativeEvent;
-            // canvasContext?.lineTo(offsetX, offsetY);
-            // canvasContext?.moveTo(offsetX, offsetY);
-            // canvasContext?.stroke();
-            // addLinePoint(offsetX, offsetY);
             if (baseBrush.current !== null) {
-                // console.log("placed at : ", offsetX, offsetY)
-                canvasContext?.putImageData(baseBrush.current, offsetX, offsetY);
+                // 5, 5 for brush size
+                const previousData = canvasContext?.getImageData(offsetX, offsetY, 5, 5)
+                if (previousData !== undefined) {
+                    for (let i = 0; i < previousData.data.length; i = i + 4) {
+                        if (baseBrush.current.data[i + 3] !== 0) {
+                            // OverWrite previous data with brush data brush isnt opaque on that spot
+                            previousData.data[i] = baseBrush.current.data[i]
+                            previousData.data[i + 1] = baseBrush.current.data[i + 1]
+                            previousData.data[i + 2] = baseBrush.current.data[i + 2]
+                            previousData.data[i + 3] = baseBrush.current.data[i + 3]
+
+                        }
+                    }
+                    canvasContext?.putImageData(previousData, offsetX, offsetY);
+                }
             }
         }
     };
 
     const canvasTouchMove = (event: React.TouchEvent) => {
-        if (drawing) {
-            const canvasContext = canvasRef.current?.getContext("2d");
-            const touches = event.changedTouches;
-            const { clientX, clientY } = touches[0];
-            const boundingRect = canvasRef?.current?.getBoundingClientRect();
-            if (boundingRect) {
-                const realX = clientX - boundingRect.left;
-                const realY = clientY - boundingRect.top;
-                // canvasContext?.lineTo(realX, realY);
-                // canvasContext?.moveTo(realX, realY);
-                // canvasContext?.stroke();
-                addLinePoint(realX, realY)
-            }
-        }
+        // TODO
     };
 
     const canvasMouseUp = () => {
         setDrawing(false);
-        // const canvasContext = canvasRef.current?.getContext("2d");
-        // canvasContext?.stroke();
     };
 
     const canvasTouchEnd = () => {
@@ -220,14 +220,14 @@ function App() {
     };
 
     const canvasMouseLeave = (event: React.MouseEvent)=> {
-        if (drawing) {
-            const canvasContext = canvasRef.current?.getContext("2d");
-            const { offsetX, offsetY } = event.nativeEvent;
+        // if (drawing) {
+            // const canvasContext = canvasRef.current?.getContext("2d");
+            // const { offsetX, offsetY } = event.nativeEvent;
             // canvasContext?.lineTo(offsetX, offsetY);
             // canvasContext?.moveTo(offsetX, offsetY);
             // canvasContext?.stroke();
             // addLinePoint(offsetX, offsetY);
-        }
+        // }
         setDrawing(false);
     }
 
