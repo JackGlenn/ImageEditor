@@ -68,7 +68,7 @@ body {
 }
 
 .displayScale {
-    border: 0.25rem solid #ccc;
+    border: solid 0.125rem rgb(88, 88, 88);
     display: inline-block;
 }
 
@@ -84,13 +84,12 @@ body {
 
 .btn {
     display: inline-block;
-    background-color: #3b82f6;
+    /* background-color: #3b82f6; */
     padding: 0.5em 1em;
     /* border-radius: 0.75rem; */
     font-weight: 600;
-    border: solid 0.25rem black;
+    border: solid 0.125rem black;
     cursor: pointer;
-
 }
 
 .uploadButton {
