@@ -170,8 +170,10 @@ function App() {
     const drawAtPoint = async (offsetX, offsetY) => {
         console.log("in async")
         const canvasContext = canvasRef.current?.getContext("2d");
-        const previousData = canvasContext?.getImageData(offsetX, offsetY, 5, 5)
         if (baseBrush.current !== null) {
+            const centeredX = offsetX - baseBrush.current.width / 2;
+            const centeredY = offsetY - baseBrush.current.height / 2;
+            const previousData = canvasContext?.getImageData(centeredX, centeredY, 5, 5);
             if (previousData !== undefined) {
                 for (let i = 0; i < previousData.data.length; i = i + 4) {
                     if (baseBrush.current.data[i + 3] !== 0) {
@@ -182,7 +184,7 @@ function App() {
                         previousData.data[i + 3] = baseBrush.current.data[i + 3]
                     }
                 }
-                canvasContext?.putImageData(previousData, offsetX, offsetY);
+                canvasContext?.putImageData(previousData, centeredX, centeredY);
             }
         }
     }
