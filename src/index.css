@@ -68,7 +68,7 @@ body {
 }
 
 .displayScale {
-    border: solid 0.125rem rgb(88, 88, 88);
+    /* border: solid 0.125rem rgb(88, 88, 88); */
     display: inline-block;
 }
 
