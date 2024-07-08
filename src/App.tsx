@@ -89,19 +89,6 @@ function App() {
             canvasContext?.drawImage(image, 0, 0);
         }
         // TODO line is rendered twice on initial stroke due to being handles both in 
-        // for (const line of lines) {
-        //     canvasContext?.beginPath();
-        //     if (canvasContext) {
-        //         canvasContext.strokeStyle = line.color;
-        //         canvasContext.lineWidth = line.lineWidth;
-        //     } 
-        //     for (const point of line.points) {
-        //         canvasContext?.lineTo(point.x, point.y);
-        //         canvasContext?.moveTo(point.x, point.y);
-        //     }
-        //     canvasContext?.stroke();
-        // }
-        // canvasContext?.createImageData()
         console.log("layout called")
         if (baseBrush.current !== null) {
             console.log(baseBrush.current);
@@ -139,14 +126,52 @@ function App() {
         setImage(img);
     };
 
-    const canvasMouseDown = (event: React.MouseEvent) => {
+    const canvasPointerDown = (event: React.PointerEvent)=> {
         setDrawing(true);
         const canvasContext = canvasRef.current?.getContext("2d");
         const { offsetX, offsetY } = event.nativeEvent;
         // TODO make this a function
+        // TODO there are likely edge cases I need to take care of when adding the brush
+        // Partial Opacity brushes should be added in some way
+        // Try NewColor = ColorTop * colorTopAlpha + ColorBottom * (1.0 - colorTopAlpha)
+        drawAtPoint(offsetX, offsetY)
+        // if (baseBrush.current !== null) {
+        //     // 5, 5 for brush size
+        //     const previousData = canvasContext?.getImageData(offsetX, offsetY, 5, 5)
+        //     if (previousData !== undefined) {
+        //         for (let i = 0; i < previousData.data.length; i = i + 4) {
+        //             if (baseBrush.current.data[i + 3] !== 0) {
+        //                 // OverWrite previous data with brush data brush isnt opaque on that spot
+        //                 previousData.data[i] = baseBrush.current.data[i]
+        //                 previousData.data[i + 1] = baseBrush.current.data[i + 1]
+        //                 previousData.data[i + 2] = baseBrush.current.data[i + 2]
+        //                 previousData.data[i + 3] = baseBrush.current.data[i + 3]
+        //             }
+        //         }
+        //         // TODO make placement of brush stroke centered on pointer not with top left corners
+        //         canvasContext?.putImageData(previousData, offsetX, offsetY);
+        //     }
+        // }
+    }
+
+    const canvasPointerMove = (event: React.PointerEvent) => {
+        if (drawing) {
+            const coalesced = event.nativeEvent.getCoalescedEvents();
+            for (const point of coalesced) {
+                drawAtPoint(point.offsetX, point.offsetY)
+            }
+        }
+    }
+
+    const canvasPointerUp = (event: React.PointerEvent) => {
+        setDrawing(false);
+    }
+
+    const drawAtPoint = async (offsetX, offsetY) => {
+        console.log("in async")
+        const canvasContext = canvasRef.current?.getContext("2d");
+        const previousData = canvasContext?.getImageData(offsetX, offsetY, 5, 5)
         if (baseBrush.current !== null) {
-            // 5, 5 for brush size
-            const previousData = canvasContext?.getImageData(offsetX, offsetY, 5, 5)
             if (previousData !== undefined) {
                 for (let i = 0; i < previousData.data.length; i = i + 4) {
                     if (baseBrush.current.data[i + 3] !== 0) {
@@ -157,80 +182,10 @@ function App() {
                         previousData.data[i + 3] = baseBrush.current.data[i + 3]
                     }
                 }
-                // TODO make placement of brush stroke centered on pointer not with top left corners
                 canvasContext?.putImageData(previousData, offsetX, offsetY);
             }
         }
-    };
-
-    const canvasTouchStart = (event: React.TouchEvent) => {
-        // TODO this code is too similar to canvas touch move
-        setDrawing(true);
-        const canvasContext = canvasRef.current?.getContext("2d");
-        const touches = event.changedTouches;
-        const { clientX, clientY } = touches[0];
-        const boundingRect = canvasRef?.current?.getBoundingClientRect();
-        if (boundingRect) {
-            const realX = clientX - boundingRect.left;
-            const realY = clientY - boundingRect.top;
-            // canvasContext?.beginPath();
-            // canvasContext?.moveTo(realX, realY);
-            // canvasContext?.lineTo(realX, realY);
-            // startLine(lineWidth, color, realX, realY);
-        }
-    };
-
-    const canvasMouseMove = (event: React.MouseEvent) => {
-        if (drawing) {
-            const canvasContext = canvasRef.current?.getContext("2d");
-            const { offsetX, offsetY } = event.nativeEvent;
-            if (baseBrush.current !== null) {
-                // 5, 5 for brush size
-                const previousData = canvasContext?.getImageData(offsetX, offsetY, 5, 5)
-                if (previousData !== undefined) {
-                    for (let i = 0; i < previousData.data.length; i = i + 4) {
-                        if (baseBrush.current.data[i + 3] !== 0) {
-                            // OverWrite previous data with brush data brush isnt opaque on that spot
-                            previousData.data[i] = baseBrush.current.data[i]
-                            previousData.data[i + 1] = baseBrush.current.data[i + 1]
-                            previousData.data[i + 2] = baseBrush.current.data[i + 2]
-                            previousData.data[i + 3] = baseBrush.current.data[i + 3]
-
-                        }
-                    }
-                    canvasContext?.putImageData(previousData, offsetX, offsetY);
-                }
-            }
-        }
-    };
-
-    const canvasTouchMove = (event: React.TouchEvent) => {
-        // TODO
-    };
-
-    const canvasMouseUp = () => {
-        setDrawing(false);
-    };
-
-    const canvasTouchEnd = () => {
-        //TODO this is the same as for canvas
-        setDrawing(false);
-        const canvasContext = canvasRef.current?.getContext("2d");
-        canvasContext?.stroke();
-    };
-
-    const canvasMouseLeave = (event: React.MouseEvent)=> {
-        // if (drawing) {
-            // const canvasContext = canvasRef.current?.getContext("2d");
-            // const { offsetX, offsetY } = event.nativeEvent;
-            // canvasContext?.lineTo(offsetX, offsetY);
-            // canvasContext?.moveTo(offsetX, offsetY);
-            // canvasContext?.stroke();
-            // addLinePoint(offsetX, offsetY);
-        // }
-        setDrawing(false);
     }
-
     const handleColorPicker = (event: React.ChangeEvent<HTMLInputElement>) => {
         const canvasContext = canvasRef.current?.getContext("2d");
         if (canvasContext) {
@@ -266,13 +221,9 @@ function App() {
                     ref={canvasRef}
                     height={height}
                     width={width}
-                    onMouseDown={canvasMouseDown}
-                    onMouseMove={canvasMouseMove}
-                    onMouseUp={canvasMouseUp}
-                    onMouseLeave={canvasMouseLeave}
-                    onTouchStart={canvasTouchStart}
-                    onTouchMove={canvasTouchMove}
-                    onTouchEnd={canvasTouchEnd}
+                    onPointerDown={canvasPointerDown}
+                    onPointerMove={canvasPointerMove}
+                    onPointerUp={canvasPointerUp}
                 >
                     Canvas
                 </canvas>
