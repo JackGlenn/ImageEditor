@@ -82,13 +82,12 @@ function App() {
         canvasContext?.clearRect(0, 0, canvasRef.current?.width ?? 100, canvasRef.current?.height ?? 100);
         // canvasContext?.reset()
         canvasContext?.resetTransform();
-        //TODO scale behaves oddly when smaller than 
+        //TODO scale behaves oddly when smaller than 1
         canvasContext?.scale(scale, scale);
         // TODO image leaves behind fragments when decreasing scale.
         if (image !== undefined) {
             canvasContext?.drawImage(image, 0, 0);
         }
-        // TODO line is rendered twice on initial stroke due to being handles both in 
         console.log("layout called")
         if (baseBrush.current !== null) {
             console.log(baseBrush.current);
@@ -130,28 +129,10 @@ function App() {
         setDrawing(true);
         const canvasContext = canvasRef.current?.getContext("2d");
         const { offsetX, offsetY } = event.nativeEvent;
-        // TODO make this a function
         // TODO there are likely edge cases I need to take care of when adding the brush
         // Partial Opacity brushes should be added in some way
         // Try NewColor = ColorTop * colorTopAlpha + ColorBottom * (1.0 - colorTopAlpha)
         drawAtPoint(offsetX, offsetY)
-        // if (baseBrush.current !== null) {
-        //     // 5, 5 for brush size
-        //     const previousData = canvasContext?.getImageData(offsetX, offsetY, 5, 5)
-        //     if (previousData !== undefined) {
-        //         for (let i = 0; i < previousData.data.length; i = i + 4) {
-        //             if (baseBrush.current.data[i + 3] !== 0) {
-        //                 // OverWrite previous data with brush data brush isnt opaque on that spot
-        //                 previousData.data[i] = baseBrush.current.data[i]
-        //                 previousData.data[i + 1] = baseBrush.current.data[i + 1]
-        //                 previousData.data[i + 2] = baseBrush.current.data[i + 2]
-        //                 previousData.data[i + 3] = baseBrush.current.data[i + 3]
-        //             }
-        //         }
-        //         // TODO make placement of brush stroke centered on pointer not with top left corners
-        //         canvasContext?.putImageData(previousData, offsetX, offsetY);
-        //     }
-        // }
     }
 
     const canvasPointerMove = (event: React.PointerEvent) => {
@@ -178,6 +159,7 @@ function App() {
                 for (let i = 0; i < previousData.data.length; i = i + 4) {
                     if (baseBrush.current.data[i + 3] !== 0) {
                         // OverWrite previous data with brush data brush isnt opaque on that spot
+                        // TODO Alpha Compositing
                         previousData.data[i] = baseBrush.current.data[i]
                         previousData.data[i + 1] = baseBrush.current.data[i + 1]
                         previousData.data[i + 2] = baseBrush.current.data[i + 2]
@@ -190,8 +172,19 @@ function App() {
     }
     const handleColorPicker = (event: React.ChangeEvent<HTMLInputElement>) => {
         const canvasContext = canvasRef.current?.getContext("2d");
-        if (canvasContext) {
-            canvasContext.strokeStyle = event.target.value;
+        // console.log(event.target.value, typeof(event.target.value))
+        const hex = event.target.value;
+        // console.log(hex.slice(0, 2), hex.slice(2, 4), hex.slice(4, 6))
+        const r = parseInt(hex.slice(1, 3), 16);
+        const g = parseInt(hex.slice(3, 5), 16);
+        const b = parseInt(hex.slice(5, 7), 16);
+        console.log(r, g, b)
+        if (!baseBrush.current) return;
+        for (let i = 0; i < baseBrush.current.data.length; i += 4) {
+            // this is setting all pixels to the color but the ones with no opacity shouldn't appear
+            baseBrush.current.data[i] = r;
+            baseBrush.current.data[i + 1] = g;
+            baseBrush.current.data[i + 2] = b;
         }
         setColor(event.target.value);
     };
